@@ -34,6 +34,7 @@ import {
   getConditionBadge,
   renderCategoryIcon
 } from '../utils/formatters';
+import { isPriceEnabled, isWarrantyEnabled } from '../config/features';
 import { api, getUploadUrl } from '../api';
 
 export default function AssetDetailModal({
