@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AssetVault - Product Presentation & Architecture Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background: #090d16;
+      color: #f1f5f9;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    header {
+      height: 60px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .live-badge {
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Slide Viewport */
+    .deck-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 2.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    .slide.prev {
+      transform: translateX(-60px);
+    }
+
+    /* Content Layouts */
+    .title-tag {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      background: rgba(37, 99, 235, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.25rem;
+      align-self: flex-start;
+    }
+    h1 {
+      font-size: 3.25rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #ffffff 40%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    h2 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+    }
+    p.lead {
+      font-size: 1.2rem;
+      color: #94a3b8;
+      max-width: 780px;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    /* 2-Column Showcase */
+    .grid-showcase {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 3.5rem;
+      align-items: center;
+      height: 100%;
+    }
+    .showcase-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .feature-points {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .feature-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .feature-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    .feature-item strong {
+      display: block;
+      color: #f8fafc;
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+    .feature-item span {
+      color: #94a3b8;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    /* Screenshot Container */
+    .screenshot-frame {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(59, 130, 246, 0.2);
+      background: #0f172a;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      position: relative;
+    }
+    .screenshot-frame:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 30px 70px -15px rgba(37, 99, 235, 0.25), 0 0 0 1px rgba(59, 130, 246, 0.4);
+    }
+    .screenshot-frame img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
+
+    /* Stat Cards Grid */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .stat-box {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 1.5rem;
+      text-align: left;
+    }
+    .stat-box .num {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #60a5fa;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stat-box .label {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Bottom Navigation Controls */
+    footer {
+      height: 64px;
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+    }
+    .dots-nav {
+      display: flex;
+      gap: 8px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .dot.active {
+      width: 28px;
+      border-radius: 9999px;
+      background: #3b82f6;
+    }
+    .nav-btns {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    button.btn {
+      padding: 8px 18px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f1f5f9;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    button.btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+    button.btn.primary {
+      background: #2563eb;
+      border-color: #3b82f6;
+    }
+    button.btn.primary:hover {
+      background: #1d4ed8;
+    }
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Bar -->
+  <header>
+    <div class="brand">
+      <div class="logo-badge">⚡</div>
+      <span>AssetVault Presentation</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="https://office-asset-manager-1.onrender.com" target="_blank" style="text-decoration: none;">
+        <div class="live-badge">
+          <div class="pulse-dot"></div>
+          <span>Live Demo: office-asset-manager-1.onrender.com</span>
+        </div>
+      </a>
+      <button class="btn" onclick="toggleFullScreen()">⛶ Fullscreen</button>
+    </div>
+  </header>
+
+  <!-- Slide Viewport -->
+  <div class="deck-container">
+
+    <!-- SLIDE 1: HERO TITLE -->
+    <div class="slide active" id="slide-0">
+      <div class="title-tag">Full-Stack Enterprise IT Project</div>
+      <h1>AssetVault — Modern IT & Hardware Asset Management System</h1>
+      <p class="lead">
+        A centralized, real-time platform engineered to eliminate equipment loss, automate employee offboarding transfers, and track the full hardware lifecycle across company assets.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="num">138+</div>
+          <div class="label">Hardware Assets Tracked</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">44</div>
+          <div class="label">Staff & Custodians Managed</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">100%</div>
+          <div class="label">Offboarding Return Guarantee</div>
+        </div>
+        <div class="stat-box">
+          <div class="num">0 sec</div>
+          <div class="label">Automated Resignation Auditing</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: THE PROBLEM & SOLUTION -->
+    <div class="slide" id="slide-1">
+      <div class="title-tag">The Business Problem & Our Solution</div>
+      <h2>Why Traditional Asset Tracking Fails</h2>
+      <p class="lead">
+        Companies lose thousands of dollars every year when employees resign or change departments without returning assigned laptops, monitors, chargers, and mobile equipment.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 1rem;">
+        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 16px; padding: 2rem;">
+          <h3 style="color: #f87171; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">❌ The Old Manual Excel Way</h3>
+          <ul class="feature-points">
+            <li class="feature-item">
+              <span class="feature-icon" style="background: rgba(239,68,68,0.2); color: #f87171;">✕</span>
+              <div>
+                <strong>Spreadsheet Version Desync</strong>
+                <span>Multiple managers editing conflicting spreadsheets leads to missing equipment.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <span class="feature-icon" style="background: rgba(239,68,68,0.2); color: #f87171;">✕</span>
+              <div>
+                <strong>Overlooked Resignations</strong>
+                <span>HR offboards an employee, but IT is never notified of assigned laptops or mobile SIMs.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <span class="feature-icon" style="background: rgba(239,68,68,0.2); color: #f87171;">✕</span>
+              <div>
+                <strong>Lapsed Warranties</strong>
+                <span>Hardware fails with expired warranty claims because expiry dates weren't monitored.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 16px; padding: 2rem;">
+          <h3 style="color: #34d399; font-size: 1.25rem; font-weight: 700; margin-bottom: 1rem;">✅ The AssetVault Solution</h3>
+          <ul class="feature-points">
+            <li class="feature-item">
+              <span class="feature-icon" style="background: rgba(16,185,129,0.2); color: #34d399;">✓</span>
+              <div>
+                <strong>Real-Time Single Source of Truth</strong>
+                <span>All assets, serial numbers, brands, and custodians synced directly in cloud SQLite.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <span class="feature-icon" style="background: rgba(16,185,129,0.2); color: #34d399;">✓</span>
+              <div>
+                <strong>Automatic Resignation Detection</strong>
+                <span>Changing employee status to "Resigned" auto-closes assignments and stages equipment for clearance.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <span class="feature-icon" style="background: rgba(16,185,129,0.2); color: #34d399;">✓</span>
+              <div>
+                <strong>Smart Warranty Radar</strong>
+                <span>Categorized alerts for warranties expiring in ≤30, ≤60, and ≤90 days.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: EXECUTIVE DASHBOARD -->
+    <div class="slide" id="slide-2">
+      <div class="grid-showcase">
+        <div class="showcase-text">
+          <div class="title-tag">Executive Dashboard</div>
+          <h2>Actionable Insights at a Glance</h2>
+          <p class="lead" style="font-size: 1rem; margin-bottom: 1rem;">
+            Real-time metric telemetry with instant interactive routing.
+          </p>
+          <ul class="feature-points">
+            <li class="feature-item">
+              <div class="feature-icon">⚡</div>
+              <div>
+                <strong>Interactive Metric Cards</strong>
+                <span>Clicking any card (Total Assets, Available in Stock, Active Assets) immediately filters inventory.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">📊</div>
+              <div>
+                <strong>Visual Analytics & Charts</strong>
+                <span>Category allocation breakdowns and deployment status distributions built with Recharts.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">🛡️</div>
+              <div>
+                <strong>Warranty Radar Alerts</strong>
+                <span>Proactively highlights imminent maintenance renewals and expiring manufacturer coverages.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="screenshot-frame">
+          <img src="01_dashboard.png" alt="AssetVault Dashboard">
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: INVENTORY MANAGEMENT -->
+    <div class="slide" id="slide-3">
+      <div class="grid-showcase">
+        <div class="showcase-text">
+          <div class="title-tag">Hardware Repository</div>
+          <h2>Granular Asset Inventory Management</h2>
+          <p class="lead" style="font-size: 1rem; margin-bottom: 1rem;">
+            Complete hardware ledger with multi-column filtering, serial number tracking, and Excel imports.
+          </p>
+          <ul class="feature-points">
+            <li class="feature-item">
+              <div class="feature-icon">🔍</div>
+              <div>
+                <strong>Multi-Dimensional Search & Filtering</strong>
+                <span>Filter instantly by category, deployment status, custodian name, location, and serial number.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">📥</div>
+              <div>
+                <strong>Smart Excel & CSV Bulk Importer</strong>
+                <span>Intelligently maps column headers, deduplicates IDs, and handles legacy spreadsheet imports.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">📤</div>
+              <div>
+                <strong>One-Click CSV & Excel Export</strong>
+                <span>Export clean audit-ready logs for internal finance, compliance, or executive reviews.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="screenshot-frame">
+          <img src="02_assets_inventory.png" alt="AssetVault Inventory Table">
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: ASSET TRANSFER & RESIGNATIONS -->
+    <div class="slide" id="slide-4">
+      <div class="grid-showcase">
+        <div class="showcase-text">
+          <div class="title-tag">Custody Workflow</div>
+          <h2>Asset Transfer & Offboarding Clearance</h2>
+          <p class="lead" style="font-size: 1rem; margin-bottom: 1rem;">
+            Automated custody workflows that bridge HR employee statuses with IT physical assets.
+          </p>
+          <ul class="feature-points">
+            <li class="feature-item">
+              <div class="feature-icon">🔄</div>
+              <div>
+                <strong>Automated Resignation Auditing</strong>
+                <span>When staff status changes to "Resigned", the system immediately flags all assigned devices for recovery.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">🖨️</div>
+              <div>
+                <strong>Printable Transfer Certificates</strong>
+                <span>Generates official, signed handover slips and clearance certificates with zero manual paperwork.</span>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">👥</div>
+              <div>
+                <strong>Bulk Transfer Capabilities</strong>
+                <span>Reassign multiple assets from one employee to another in a single batch operation.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="screenshot-frame">
+          <img src="03_asset_transfer.png" alt="AssetVault Transfer Hub">
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: TECH STACK & ARCHITECTURE -->
+    <div class="slide" id="slide-5">
+      <div class="title-tag">Engineering & Architecture</div>
+      <h2>Modern, Robust Full-Stack Architecture</h2>
+      <p class="lead">
+        Engineered for rapid response times, zero external database subscription overhead, and high portability.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 1rem;">
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.75rem;">
+          <div style="font-size: 1.75rem; margin-bottom: 0.75rem;">⚛️</div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #60a5fa; margin-bottom: 0.5rem;">Frontend (React 19)</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5;">
+            Built with modern React 19 and Vite 8 for blazing 3-second compilation, Tailwind CSS for luxury dark-mode aesthetics, and Recharts for dynamic visual analytics.
+          </p>
+        </div>
+
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.75rem;">
+          <div style="font-size: 1.75rem; margin-bottom: 0.75rem;">⚡</div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #34d399; margin-bottom: 0.5rem;">Backend (Node.js & Express 5)</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5;">
+            Single unified server delivering REST APIs and compiled static assets. Uses Node.js 24 native SQLite with WAL mode for ultra-fast, zero-overhead storage.
+          </p>
+        </div>
+
+        <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.75rem;">
+          <div style="font-size: 1.75rem; margin-bottom: 0.75rem;">☁️</div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #c084fc; margin-bottom: 0.5rem;">Free 24/7 Cloud Deployment</h3>
+          <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5;">
+            Hosted on Render.com free web service tier with continuous CI/CD from GitHub. Accessible 24/7 from any computer, tablet, or phone worldwide.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: SUMMARY & LINKS -->
+    <div class="slide" id="slide-6">
+      <div class="title-tag">Ready For Production</div>
+      <h2>Transforming Corporate Asset Operations</h2>
+      <p class="lead">
+        AssetVault delivers end-to-end transparency, saves hours of admin overhead, and guarantees that every laptop, monitor, and accessory is accounted for.
+      </p>
+
+      <div style="display: flex; gap: 1.5rem; margin-top: 1.5rem;">
+        <a href="https://office-asset-manager-1.onrender.com" target="_blank" style="text-decoration: none;">
+          <button class="btn primary" style="font-size: 1.05rem; padding: 12px 28px;">
+            🌐 Open Live Application
+          </button>
+        </a>
+        <a href="https://github.com/dipsoni/office-asset-manager" target="_blank" style="text-decoration: none;">
+          <button class="btn" style="font-size: 1.05rem; padding: 12px 28px;">
+            💻 View GitHub Repository
+          </button>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Navigation Controls -->
+  <footer>
+    <div class="slide-counter" id="counter">1 / 7</div>
+    <div class="dots-nav" id="dots"></div>
+    <div class="nav-btns">
+      <button class="btn" onclick="prevSlide()">← Previous</button>
+      <button class="btn primary" onclick="nextSlide()">Next →</button>
+    </div>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const dotsContainer = document.getElementById('dots');
+    const counter = document.getElementById('counter');
+
+    // Create dots
+    slides.forEach((_, idx) => {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (idx === 0 ? ' active' : '');
+      dot.addEventListener('click', () => goToSlide(idx));
+      dotsContainer.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.remove('active', 'prev');
+        if (idx === currentSlide) {
+          s.classList.add('active');
+        } else if (idx < currentSlide) {
+          s.classList.add('prev');
+        }
+      });
+      dots.forEach((d, idx) => {
+        d.classList.toggle('active', idx === currentSlide);
+      });
+      counter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(n) {
+      currentSlide = n;
+      updateSlide();
+    }
+
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      }
+    });
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        }
+      }
+    }
+  </script>
+</body>
+</html>
