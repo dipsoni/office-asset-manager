@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: asset-management-system
+    env: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
