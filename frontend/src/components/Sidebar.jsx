@@ -30,12 +30,16 @@ export default function Sidebar({ currentTab, setCurrentTab, stats, settings }) 
   return (
     <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 select-none transition-colors duration-200">
       {/* Brand Header */}
-      <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-200 dark:border-slate-800">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+      <div
+        onClick={() => setCurrentTab('dashboard')}
+        className="h-16 flex items-center gap-3 px-5 border-b border-slate-200 dark:border-slate-800 cursor-pointer hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors group"
+        title="Go to Dashboard"
+      >
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
           <Laptop className="w-5 h-5" />
         </div>
         <div>
-          <h1 className="font-bold text-slate-900 dark:text-white text-base tracking-tight leading-tight">
+          <h1 className="font-bold text-slate-900 dark:text-white text-base tracking-tight leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
             AssetVault
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Asset Management</p>
