@@ -47,6 +47,7 @@ export default function DashboardView({
   dashboardData,
   currency,
   settings,
+  setCurrentTab,
   onNavigateToAssets,
   onSelectAsset,
   onOpenAddModal
@@ -71,7 +72,9 @@ export default function DashboardView({
       icon: Layers,
       color: 'text-blue-600 dark:text-blue-400',
       bg: 'bg-blue-50 dark:bg-blue-950/40',
-      border: 'border-blue-100 dark:border-blue-900/60'
+      border: 'border-blue-100 dark:border-blue-900/60',
+      onClick: () => onNavigateToAssets({ status: '' }),
+      tag: 'View All'
     },
     ...(showPrice
       ? [
@@ -82,7 +85,9 @@ export default function DashboardView({
             icon: IndianRupee,
             color: 'text-emerald-600 dark:text-emerald-400',
             bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-            border: 'border-emerald-100 dark:border-emerald-900/60'
+            border: 'border-emerald-100 dark:border-emerald-900/60',
+            onClick: () => onNavigateToAssets({ status: '' }),
+            tag: 'Valuation'
           }
         ]
       : [
@@ -93,7 +98,9 @@ export default function DashboardView({
             icon: Clock,
             color: 'text-emerald-600 dark:text-emerald-400',
             bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-            border: 'border-emerald-100 dark:border-emerald-900/60'
+            border: 'border-emerald-100 dark:border-emerald-900/60',
+            onClick: () => onNavigateToAssets({ status: 'Available' }),
+            tag: 'Available'
           }
         ]),
     {
@@ -103,7 +110,9 @@ export default function DashboardView({
       icon: CheckCircle2,
       color: 'text-indigo-600 dark:text-indigo-400',
       bg: 'bg-indigo-50 dark:bg-indigo-950/40',
-      border: 'border-indigo-100 dark:border-indigo-900/60'
+      border: 'border-indigo-100 dark:border-indigo-900/60',
+      onClick: () => onNavigateToAssets({ status: 'Assigned' }),
+      tag: 'Deployed'
     },
     {
       title: 'Assigned Assets',
@@ -112,7 +121,9 @@ export default function DashboardView({
       icon: UserCheck,
       color: 'text-sky-600 dark:text-sky-400',
       bg: 'bg-sky-50 dark:bg-sky-950/40',
-      border: 'border-sky-100 dark:border-sky-900/60'
+      border: 'border-sky-100 dark:border-sky-900/60',
+      onClick: () => setCurrentTab ? setCurrentTab('assignments') : onNavigateToAssets({ status: 'Assigned' }),
+      tag: 'Assignments'
     },
     {
       title: 'Under Repair',
@@ -121,7 +132,9 @@ export default function DashboardView({
       icon: Wrench,
       color: 'text-amber-600 dark:text-amber-400',
       bg: 'bg-amber-50 dark:bg-amber-950/40',
-      border: 'border-amber-100 dark:border-amber-900/60'
+      border: 'border-amber-100 dark:border-amber-900/60',
+      onClick: () => setCurrentTab ? setCurrentTab('maintenance') : onNavigateToAssets({ status: 'Need to check' }),
+      tag: 'Repairs'
     },
     {
       title: 'Lost / Damaged',
@@ -130,7 +143,9 @@ export default function DashboardView({
       icon: AlertOctagon,
       color: 'text-rose-600 dark:text-rose-400',
       bg: 'bg-rose-50 dark:bg-rose-950/40',
-      border: 'border-rose-100 dark:border-rose-900/60'
+      border: 'border-rose-100 dark:border-rose-900/60',
+      onClick: () => onNavigateToAssets({ status: 'Need to check' }),
+      tag: 'Review'
     },
     {
       title: 'Pending Returns',
@@ -139,7 +154,9 @@ export default function DashboardView({
       icon: RotateCcw,
       color: 'text-amber-600 dark:text-amber-400',
       bg: 'bg-amber-50 dark:bg-amber-950/40',
-      border: 'border-amber-100 dark:border-amber-900/60'
+      border: 'border-amber-100 dark:border-amber-900/60',
+      onClick: () => setCurrentTab ? setCurrentTab('handovers') : onNavigateToAssets(),
+      tag: 'Transfers'
     },
     {
       title: 'Resigned Staff',
@@ -148,7 +165,9 @@ export default function DashboardView({
       icon: UserX,
       color: 'text-rose-600 dark:text-rose-400',
       bg: 'bg-rose-50 dark:bg-rose-950/40',
-      border: 'border-rose-100 dark:border-rose-900/60'
+      border: 'border-rose-100 dark:border-rose-900/60',
+      onClick: () => setCurrentTab ? setCurrentTab('handovers') : onNavigateToAssets(),
+      tag: 'Clearance'
     },
     {
       title: 'Retired Assets',
@@ -157,7 +176,9 @@ export default function DashboardView({
       icon: Archive,
       color: 'text-slate-600 dark:text-slate-400',
       bg: 'bg-slate-50 dark:bg-slate-800/40',
-      border: 'border-slate-200 dark:border-slate-700'
+      border: 'border-slate-200 dark:border-slate-700',
+      onClick: () => onNavigateToAssets({ status: 'Disposed' }),
+      tag: 'Disposed'
     }
   ];
 
@@ -269,23 +290,36 @@ export default function DashboardView({
           return (
             <div
               key={idx}
-              className={`p-4 rounded-xl bg-white dark:bg-slate-900 border ${card.border} shadow-sm hover:shadow transition-shadow duration-150 flex flex-col justify-between`}
+              onClick={card.onClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && card.onClick && card.onClick()}
+              className={`p-4 rounded-xl bg-white dark:bg-slate-900 border ${card.border} shadow-sm card-hover-effect cursor-pointer group flex flex-col justify-between select-none relative overflow-hidden`}
+              title={`Click to view ${card.title}`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
                   {card.title}
+                  <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-blue-500" />
                 </span>
-                <div className={`p-2 rounded-lg ${card.bg} ${card.color}`}>
+                <div className={`p-2 rounded-lg ${card.bg} ${card.color} group-hover:scale-110 transition-transform duration-200 shadow-sm`}>
                   <Icon className="w-4 h-4" />
                 </div>
               </div>
-              <div className="mt-3">
-                <div className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                  {card.value}
+              <div className="mt-3 flex items-end justify-between">
+                <div>
+                  <div className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {card.value}
+                  </div>
+                  <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
+                    {card.sub}
+                  </div>
                 </div>
-                <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
-                  {card.sub}
-                </div>
+                {card.tag && (
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 opacity-60 group-hover:opacity-100 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all">
+                    {card.tag}
+                  </span>
+                )}
               </div>
             </div>
           );

@@ -262,15 +262,20 @@ export default function App() {
         />
 
         {/* View Router */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-6 animate-view-fade">
           <ErrorBoundary key={currentTab} onReset={loadAllData}>
           {currentTab === 'dashboard' && (
             <DashboardView
               dashboardData={dashboardData}
               currency={currency}
               settings={settings}
+              setCurrentTab={setCurrentTab}
               onNavigateToAssets={(filters = {}) => {
+                setStatusFilter(filters.status !== undefined ? filters.status : '');
+                setCategoryFilter(filters.category !== undefined ? filters.category : '');
+                setSearchTerm(filters.search !== undefined ? filters.search : '');
                 if (filters.warranty_filter) setWarrantyFilter(filters.warranty_filter);
+                else setWarrantyFilter('');
                 if (filters.sort_by) setSortBy(filters.sort_by);
                 if (filters.sort_order) setSortOrder(filters.sort_order);
                 setCurrentTab('assets');
