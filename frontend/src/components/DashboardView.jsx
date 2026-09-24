@@ -13,7 +13,6 @@ import {
   TrendingUp,
   MapPin,
   Calendar,
-  Sparkles,
   UserX,
   RotateCcw
 } from 'lucide-react';
@@ -164,32 +163,29 @@ export default function DashboardView({
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30">
-              <Sparkles className="w-3.5 h-3.5" /> Single-User Offline Edition
-            </div>
-            <h2 className="text-2xl font-bold tracking-tight">Personal Asset Dashboard</h2>
-            <p className="text-slate-300 text-sm max-w-xl">
-              Complete inventory, hardware specifications, assignments, and maintenance logs safely stored on your local computer.
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => onNavigateToAssets()}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-sm font-semibold border border-white/20 transition-colors"
-            >
-              View All Assets
-            </button>
-            <button
-              onClick={onOpenAddModal}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-semibold shadow-md transition-colors"
-            >
-              + Add New Asset
-            </button>
-          </div>
+      {/* Executive Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Asset Dashboard
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Overview of equipment, assignments, warranty tracking, and asset status.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => onNavigateToAssets()}
+            className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-semibold border border-slate-200 dark:border-slate-700 transition-colors shadow-sm"
+          >
+            View All Assets
+          </button>
+          <button
+            onClick={onOpenAddModal}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-md shadow-blue-500/20 transition-colors"
+          >
+            + Add New Asset
+          </button>
         </div>
       </div>
 

@@ -206,14 +206,14 @@ export default function HandoverView({
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Asset Handover & Reassignment Hub
+              Asset Transfer & Reassignment Hub
             </h2>
             <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
               Module Active
             </span>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Maintain complete chronological custody history, manage employee resignation handovers, and print slips.
+            Maintain complete chronological custody history, manage employee resignation transfers, and print slips.
           </p>
         </div>
 
@@ -225,7 +225,7 @@ export default function HandoverView({
               className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs font-semibold shadow-sm transition-all"
             >
               <FileSpreadsheet className="w-4 h-4" />
-              <span>Import Handover Sheet</span>
+              <span>Import Transfer Sheet</span>
             </button>
           )}
 
@@ -234,7 +234,7 @@ export default function HandoverView({
             className="flex items-center gap-1.5 px-3.5 py-2 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 rounded-xl text-xs font-semibold shadow-sm transition-all"
           >
             <Users className="w-4 h-4" />
-            <span>Bulk Handover (Resignation)</span>
+            <span>Bulk Transfer (Resignation)</span>
           </button>
 
           <button
@@ -242,7 +242,7 @@ export default function HandoverView({
             className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-600/20 transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span>+ New Handover</span>
+            <span>+ New Transfer</span>
           </button>
         </div>
       </div>
@@ -285,7 +285,7 @@ export default function HandoverView({
         <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between text-indigo-500">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              Pending Handovers
+              Pending Transfers
             </span>
             <ArrowRight className="w-4 h-4" />
           </div>
@@ -357,7 +357,7 @@ export default function HandoverView({
           }`}
         >
           <Layers className="w-4 h-4" />
-          <span>Handover History & Ledger</span>
+          <span>Transfer History & Ledger</span>
           <span className="ml-1 px-1.5 py-0.5 text-[10px] rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-semibold">
             {handovers.length}
           </span>

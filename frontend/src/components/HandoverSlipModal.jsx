@@ -20,7 +20,7 @@ export default function HandoverSlipModal({ isOpen, onClose, handover, settings 
         <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 print:hidden">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-800 dark:text-slate-200">
             <ArrowLeftRight className="w-4 h-4 text-blue-600" />
-            <span>Asset Handover Slip • {handover.handover_id}</span>
+            <span>Asset Transfer Slip • {handover.handover_id}</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -48,7 +48,7 @@ export default function HandoverSlipModal({ isOpen, onClose, handover, settings 
                 Official Equipment Transfer Record
               </span>
               <h1 className="text-xl font-black tracking-tight text-slate-900 dark:text-white uppercase mt-0.5">
-                ASSET HANDOVER CERTIFICATE
+                ASSET TRANSFER CERTIFICATE
               </h1>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
                 {companyName} • Internal IT & Hardware Administration

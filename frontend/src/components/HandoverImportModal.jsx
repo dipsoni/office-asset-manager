@@ -405,14 +405,14 @@ export default function HandoverImportModal({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                  Import Handover Sheet
+                  Import Transfer Sheet
                 </h2>
                 <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                   Smart Excel Mapping
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Upload any Excel or CSV sheet to import historical and current asset handover records.
+                Upload any Excel or CSV sheet to import historical and current asset transfer records.
               </p>
             </div>
           </div>

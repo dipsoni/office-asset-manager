@@ -297,7 +297,7 @@ export default function BulkHandoverModal({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                  Bulk Asset Handover & Clearance
+                  Bulk Asset Transfer & Clearance
                 </h2>
                 <span className="px-2 py-0.5 text-[11px] font-semibold rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                   Resignation & Batch

@@ -19,7 +19,7 @@ export default function Sidebar({ currentTab, setCurrentTab, stats, settings }) 
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'assets', label: 'Assets Inventory', icon: Layers, badge: stats?.totalAssets },
     { id: 'assignments', label: 'Assignments', icon: UserCheck, badge: stats?.assignedAssets },
-    { id: 'handovers', label: 'Asset Handover', icon: ArrowLeftRight, badge: stats?.pendingHandovers },
+    { id: 'handovers', label: 'Asset Transfer', icon: ArrowLeftRight, badge: stats?.pendingHandovers },
     { id: 'maintenance', label: 'Maintenance & Repairs', icon: Wrench, badge: stats?.underRepair },
     { id: 'categories', label: 'Categories', icon: FolderTree },
     { id: 'reports', label: 'Reports & Export', icon: FileSpreadsheet },
@@ -38,7 +38,7 @@ export default function Sidebar({ currentTab, setCurrentTab, stats, settings }) 
           <h1 className="font-bold text-slate-900 dark:text-white text-base tracking-tight leading-tight">
             AssetVault
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Personal System</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Asset Management</p>
         </div>
       </div>
 

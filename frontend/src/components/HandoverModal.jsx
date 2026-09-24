@@ -275,14 +275,14 @@ export default function HandoverModal({ isOpen, onClose, initialAsset, onSuccess
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900 dark:text-white">
-                Asset Handover & Reassignment
+                Asset Transfer & Reassignment
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {step === 1 && 'Step 1: Select Asset & Identify Current Holder'}
                 {step === 2 && 'Step 2: Return Details & Transfer Reason'}
-                {step === 3 && 'Step 3: New Custodian & Handover Details'}
-                {step === 4 && 'Step 4: Review Summary & Confirm Handover'}
-                {step === 5 && 'Handover Complete!'}
+                {step === 3 && 'Step 3: New Custodian & Transfer Details'}
+                {step === 4 && 'Step 4: Review Summary & Confirm Transfer'}
+                {step === 5 && 'Transfer Complete!'}
               </p>
             </div>
           </div>
@@ -761,7 +761,7 @@ export default function HandoverModal({ isOpen, onClose, initialAsset, onSuccess
                 <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
                   <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-1.5">
                     <Sparkles className="w-4 h-4 text-blue-600" />
-                    Asset Handover Summary
+                    Asset Transfer Summary
                   </h3>
                   <span className="font-mono text-xs font-bold text-blue-600 bg-white dark:bg-slate-900 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-700">
                     {selectedAsset.id}
