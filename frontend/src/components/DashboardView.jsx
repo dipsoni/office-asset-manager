@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Layers,
   IndianRupee,
@@ -10,11 +10,19 @@ import {
   Archive,
   ShieldAlert,
   ArrowRight,
+  Plus,
+  ArrowLeftRight,
+  Upload,
+  BookOpen,
+  HelpCircle,
   TrendingUp,
   MapPin,
   Calendar,
   UserX,
-  RotateCcw
+  RotateCcw,
+  Sparkles,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import {
   PieChart,
@@ -50,8 +58,15 @@ export default function DashboardView({
   setCurrentTab,
   onNavigateToAssets,
   onSelectAsset,
-  onOpenAddModal
+  onOpenAddModal,
+  onOpenAssignModal,
+  onOpenImportModal,
+  onOpenGuide
 }) {
+  const [showGuideBanner, setShowGuideBanner] = useState(() => {
+    return localStorage.getItem('assetvault_hide_quickstart') !== 'true';
+  });
+
   if (!dashboardData) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -64,50 +79,69 @@ export default function DashboardView({
   const showPrice = isPriceEnabled(settings);
   const showWarranty = isWarrantyEnabled(settings);
 
-  const metricCards = [
+  const handleDismissBanner = () => {
+    setShowGuideBanner(false);
+    localStorage.setItem('assetvault_hide_quickstart', 'true');
+  };
+
+  // Primary Action Cards
+  const quickActions = [
+    {
+      title: 'Add New Asset',
+      desc: 'Register a laptop, monitor, or hardware',
+      icon: Plus,
+      color: 'bg-blue-600 hover:bg-blue-700 text-white',
+      iconBg: 'bg-blue-500/30 text-white',
+      onClick: onOpenAddModal,
+      badge: 'Quick Add'
+    },
+    {
+      title: 'Assign to Employee',
+      desc: 'Hand over equipment to a team member',
+      icon: UserCheck,
+      color: 'bg-indigo-600 hover:bg-indigo-700 text-white',
+      iconBg: 'bg-indigo-500/30 text-white',
+      onClick: () => (onOpenAssignModal ? onOpenAssignModal() : setCurrentTab('assignments')),
+      badge: `${summary?.availableAssets || 0} in stock`
+    },
+    {
+      title: 'Transfer & Return',
+      desc: 'Recover equipment or clear resigned staff',
+      icon: ArrowLeftRight,
+      color: 'bg-emerald-600 hover:bg-emerald-700 text-white',
+      iconBg: 'bg-emerald-500/30 text-white',
+      onClick: () => setCurrentTab('handovers'),
+      badge: summary?.resignedEmployees > 0 ? `${summary.resignedEmployees} Resigned` : 'Offboarding'
+    },
+    {
+      title: 'Import from Excel',
+      desc: 'Upload company spreadsheet in seconds',
+      icon: Upload,
+      color: 'bg-slate-800 hover:bg-slate-700 text-white dark:bg-slate-700 dark:hover:bg-slate-600',
+      iconBg: 'bg-white/20 text-white',
+      onClick: onOpenImportModal,
+      badge: 'Auto-fill'
+    }
+  ];
+
+  // Core Fleet Metrics
+  const primaryMetrics = [
     {
       title: 'Total Assets',
       value: summary?.totalAssets || 0,
-      sub: 'All recorded equipment',
+      sub: 'Total equipment recorded',
       icon: Layers,
       color: 'text-blue-600 dark:text-blue-400',
       bg: 'bg-blue-50 dark:bg-blue-950/40',
       border: 'border-blue-100 dark:border-blue-900/60',
       onClick: () => onNavigateToAssets({ status: '' }),
-      tag: 'View All'
+      tag: 'Full Inventory'
     },
-    ...(showPrice
-      ? [
-          {
-            title: 'Total Asset Value',
-            value: formatCurrency(summary?.totalAssetValue || 0, currency),
-            sub: 'Cumulative purchase valuation',
-            icon: IndianRupee,
-            color: 'text-emerald-600 dark:text-emerald-400',
-            bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-            border: 'border-emerald-100 dark:border-emerald-900/60',
-            onClick: () => onNavigateToAssets({ status: '' }),
-            tag: 'Valuation'
-          }
-        ]
-      : [
-          {
-            title: 'Available in Stock',
-            value: summary?.availableAssets || 0,
-            sub: 'Ready for allocation',
-            icon: Clock,
-            color: 'text-emerald-600 dark:text-emerald-400',
-            bg: 'bg-emerald-50 dark:bg-emerald-950/40',
-            border: 'border-emerald-100 dark:border-emerald-900/60',
-            onClick: () => onNavigateToAssets({ status: 'Available' }),
-            tag: 'Available'
-          }
-        ]),
     {
-      title: 'Active Assets',
+      title: 'Assigned / In Use',
       value: summary?.activeAssets || 0,
-      sub: 'In use or deployed',
-      icon: CheckCircle2,
+      sub: 'Currently with team members',
+      icon: UserCheck,
       color: 'text-indigo-600 dark:text-indigo-400',
       bg: 'bg-indigo-50 dark:bg-indigo-950/40',
       border: 'border-indigo-100 dark:border-indigo-900/60',
@@ -115,100 +149,223 @@ export default function DashboardView({
       tag: 'Deployed'
     },
     {
-      title: 'Assigned Assets',
-      value: summary?.assignedAssets || 0,
-      sub: 'Allocated to custodians',
-      icon: UserCheck,
-      color: 'text-sky-600 dark:text-sky-400',
-      bg: 'bg-sky-50 dark:bg-sky-950/40',
-      border: 'border-sky-100 dark:border-sky-900/60',
-      onClick: () => setCurrentTab ? setCurrentTab('assignments') : onNavigateToAssets({ status: 'Assigned' }),
-      tag: 'Assignments'
+      title: 'Available in Stock',
+      value: summary?.availableAssets || 0,
+      sub: 'Ready for new assignment',
+      icon: CheckCircle2,
+      color: 'text-emerald-600 dark:text-emerald-400',
+      bg: 'bg-emerald-50 dark:bg-emerald-950/40',
+      border: 'border-emerald-100 dark:border-emerald-900/60',
+      onClick: () => onNavigateToAssets({ status: 'Available' }),
+      tag: 'Ready to Deploy'
     },
     {
       title: 'Under Repair',
       value: summary?.underRepair || 0,
-      sub: 'At service / maintenance',
+      sub: 'At vendor / maintenance',
       icon: Wrench,
       color: 'text-amber-600 dark:text-amber-400',
       bg: 'bg-amber-50 dark:bg-amber-950/40',
       border: 'border-amber-100 dark:border-amber-900/60',
-      onClick: () => setCurrentTab ? setCurrentTab('maintenance') : onNavigateToAssets({ status: 'Need to check' }),
-      tag: 'Repairs'
-    },
-    {
-      title: 'Lost / Damaged',
-      value: summary?.lostAssets || 0,
-      sub: 'Requiring review or write-off',
-      icon: AlertOctagon,
-      color: 'text-rose-600 dark:text-rose-400',
-      bg: 'bg-rose-50 dark:bg-rose-950/40',
-      border: 'border-rose-100 dark:border-rose-900/60',
-      onClick: () => onNavigateToAssets({ status: 'Need to check' }),
-      tag: 'Review'
-    },
-    {
-      title: 'Pending Returns',
-      value: summary?.pendingReturns || 0,
-      sub: 'Awaiting check-in / resignation',
-      icon: RotateCcw,
-      color: 'text-amber-600 dark:text-amber-400',
-      bg: 'bg-amber-50 dark:bg-amber-950/40',
-      border: 'border-amber-100 dark:border-amber-900/60',
-      onClick: () => setCurrentTab ? setCurrentTab('handovers') : onNavigateToAssets(),
-      tag: 'Transfers'
-    },
-    {
-      title: 'Resigned Staff',
-      value: summary?.resignedEmployees || 0,
-      sub: 'Offboarded clearance roster',
-      icon: UserX,
-      color: 'text-rose-600 dark:text-rose-400',
-      bg: 'bg-rose-50 dark:bg-rose-950/40',
-      border: 'border-rose-100 dark:border-rose-900/60',
-      onClick: () => setCurrentTab ? setCurrentTab('handovers') : onNavigateToAssets(),
-      tag: 'Clearance'
-    },
-    {
-      title: 'Retired Assets',
-      value: summary?.retiredAssets || 0,
-      sub: 'Sold, scrapped or disposed',
-      icon: Archive,
-      color: 'text-slate-600 dark:text-slate-400',
-      bg: 'bg-slate-50 dark:bg-slate-800/40',
-      border: 'border-slate-200 dark:border-slate-700',
-      onClick: () => onNavigateToAssets({ status: 'Disposed' }),
-      tag: 'Disposed'
+      onClick: () => setCurrentTab('maintenance'),
+      tag: 'Maintenance'
     }
   ];
 
   return (
-    <div className="space-y-6 pb-12">
-      {/* Executive Header */}
+    <div className="space-y-6 pb-12 animate-view-fade">
+      {/* Header & Help Trigger */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Asset Dashboard
-          </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Overview of equipment, assignments, warranty tracking, and asset status.
+          <div className="flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+              Asset Dashboard
+            </h2>
+            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live Workspace
+            </span>
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Manage your hardware inventory, assignments, transfers, and warranties in one place.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-2.5">
           <button
-            onClick={() => onNavigateToAssets()}
-            className="px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-sm font-semibold border border-slate-200 dark:border-slate-700 transition-colors shadow-sm"
+            onClick={onOpenGuide}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-colors shadow-sm"
           >
-            View All Assets
+            <HelpCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <span>How to Use Guide</span>
           </button>
           <button
-            onClick={onOpenAddModal}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-md shadow-blue-500/20 transition-colors"
+            onClick={() => onNavigateToAssets()}
+            className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-semibold transition-colors"
           >
-            + Add New Asset
+            View All Assets ({summary?.totalAssets || 0})
           </button>
         </div>
       </div>
+
+      {/* QUICK ACTIONS HUB (4 Big Easy Buttons) */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-blue-500" />
+            Quick Actions — What do you want to do?
+          </h3>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {quickActions.map((action, idx) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={idx}
+                onClick={action.onClick}
+                className={`p-4 rounded-xl ${action.color} text-left transition-all duration-200 shadow-sm hover:shadow-md card-hover-effect flex flex-col justify-between group relative overflow-hidden`}
+              >
+                <div className="flex items-start justify-between w-full">
+                  <div className={`p-2.5 rounded-lg ${action.iconBg} group-hover:scale-110 transition-transform duration-200`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  {action.badge && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-white">
+                      {action.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-4">
+                  <h4 className="text-sm font-bold flex items-center gap-1 text-white">
+                    {action.title}
+                    <ArrowRight className="w-3.5 h-3.5 opacity-70 group-hover:translate-x-1 group-hover:opacity-100 transition-all duration-200" />
+                  </h4>
+                  <p className="text-xs text-white/80 mt-0.5 line-clamp-1">
+                    {action.desc}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* GETTING STARTED BANNER (Easy Walkthrough) */}
+      {showGuideBanner && (
+        <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800/80 dark:to-indigo-950/30 rounded-xl border border-blue-200/80 dark:border-indigo-800/50 shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                💡
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                    Quick Start in 3 Easy Steps
+                  </h4>
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <strong>1. Add Equipment</strong> via "+ Add Asset" or "Import Excel" → <strong>2. Assign to Staff</strong> with 1 click → <strong>3. Recover Assets</strong> when employees leave or upgrade.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={onOpenGuide}
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
+              >
+                Read Quick Guide
+              </button>
+              <button
+                onClick={handleDismissBanner}
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-white/50 dark:hover:bg-slate-700/50 text-xs font-medium"
+                title="Dismiss guide banner"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CORE FLEET METRIC CARDS */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            Inventory & Fleet Health
+          </h3>
+          <span className="text-xs text-slate-400">Click any card to view list</span>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {primaryMetrics.map((card, idx) => {
+            const Icon = card.icon;
+            return (
+              <div
+                key={idx}
+                onClick={card.onClick}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && card.onClick && card.onClick()}
+                className={`p-4 rounded-xl bg-white dark:bg-slate-900 border ${card.border} shadow-sm card-hover-effect cursor-pointer group flex flex-col justify-between select-none relative overflow-hidden`}
+                title={`Click to view ${card.title}`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
+                    {card.title}
+                    <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-blue-500" />
+                  </span>
+                  <div className={`p-2 rounded-lg ${card.bg} ${card.color} group-hover:scale-110 transition-transform duration-200 shadow-sm`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="mt-3 flex items-end justify-between">
+                  <div>
+                    <div className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {card.value}
+                    </div>
+                    <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
+                      {card.sub}
+                    </div>
+                  </div>
+                  {card.tag && (
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 opacity-60 group-hover:opacity-100 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all">
+                      {card.tag}
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Secondary Quick Attention Alert (If Resigned Staff or Pending Returns) */}
+      {(summary?.resignedEmployees > 0 || summary?.pendingReturns > 0) && (
+        <div className="p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-rose-100 dark:bg-rose-900/60 text-rose-600 dark:text-rose-300 rounded-lg">
+              <UserX className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs font-bold text-rose-900 dark:text-rose-200">
+                Action Required: Resigned Staff Clearance ({summary.resignedEmployees})
+              </h4>
+              <p className="text-xs text-rose-800 dark:text-rose-300/80">
+                There are hardware assets pending return from offboarded employees.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setCurrentTab('handovers')}
+            className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm shrink-0"
+          >
+            Review & Recover Assets →
+          </button>
+        </div>
+      )}
 
       {/* Warranty Expiry Radar Alert */}
       {showWarranty && (warrantySummary?.expiring90 > 0 || warrantySummary?.expired > 0) && (
@@ -282,49 +439,6 @@ export default function DashboardView({
           )}
         </div>
       )}
-
-      {/* Metrics Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {metricCards.map((card, idx) => {
-          const Icon = card.icon;
-          return (
-            <div
-              key={idx}
-              onClick={card.onClick}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && card.onClick && card.onClick()}
-              className={`p-4 rounded-xl bg-white dark:bg-slate-900 border ${card.border} shadow-sm card-hover-effect cursor-pointer group flex flex-col justify-between select-none relative overflow-hidden`}
-              title={`Click to view ${card.title}`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors flex items-center gap-1.5">
-                  {card.title}
-                  <ArrowRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 text-blue-500" />
-                </span>
-                <div className={`p-2 rounded-lg ${card.bg} ${card.color} group-hover:scale-110 transition-transform duration-200 shadow-sm`}>
-                  <Icon className="w-4 h-4" />
-                </div>
-              </div>
-              <div className="mt-3 flex items-end justify-between">
-                <div>
-                  <div className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {card.value}
-                  </div>
-                  <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5 truncate">
-                    {card.sub}
-                  </div>
-                </div>
-                {card.tag && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 opacity-60 group-hover:opacity-100 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all">
-                    {card.tag}
-                  </span>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
 
       {/* Analytics Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -442,195 +556,6 @@ export default function DashboardView({
               <div className="h-full flex items-center justify-center text-xs text-slate-400">
                 No status data yet
               </div>
-            )}
-          </div>
-        </div>
-
-        {/* Location Distribution */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-blue-600" /> Assets by Location
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Physical placement & desk allocation</p>
-            </div>
-          </div>
-
-          <div className="h-64">
-            {charts?.byLocation && charts.byLocation.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={charts.byLocation}
-                  layout="vertical"
-                  margin={{ top: 5, right: 20, left: 40, bottom: 5 }}
-                >
-                  <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0f172a',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '12px',
-                      border: 'none'
-                    }}
-                  />
-                  <Bar dataKey="count" fill="#0284c7" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-400">
-                No location data yet
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Purchase Year Trends */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-indigo-600" /> Assets by Purchase Year
-              </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Acquisition timeline & capital expenditure</p>
-            </div>
-          </div>
-
-          <div className="h-64">
-            {charts?.byPurchaseYear && charts.byPurchaseYear.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={charts.byPurchaseYear} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
-                  <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#0f172a',
-                      borderRadius: '8px',
-                      color: '#fff',
-                      fontSize: '12px',
-                      border: 'none'
-                    }}
-                    formatter={(val, name, props) => [
-                      showPrice && props.payload.total_value > 0
-                        ? `${val} assets (${formatCurrency(props.payload.total_value, currency)})`
-                        : `${val} assets`,
-                      'Purchased'
-                    ]}
-                  />
-                  <Bar dataKey="count" fill="#4f46e5" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-400">
-                No purchase timeline recorded yet
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Tables: Recently Added & Recently Updated */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recently Added */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recently Added Assets</h3>
-            <button
-              onClick={() => onNavigateToAssets({ sort_by: 'created_at', sort_order: 'DESC' })}
-              className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline"
-            >
-              View all
-            </button>
-          </div>
-
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {recentlyAdded?.length > 0 ? (
-              recentlyAdded.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => onSelectAsset(item)}
-                  className="py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 px-2 rounded-lg cursor-pointer transition-colors"
-                >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
-                        {item.id}
-                      </span>
-                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                        {item.name}
-                      </span>
-                    </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                      <span>{item.category_name}</span>
-                      {item.brand && (
-                        <>
-                          <span>•</span>
-                          <span>{item.brand}</span>
-                        </>
-                      )}
-                      {showPrice && item.purchase_price > 0 && (
-                        <>
-                          <span>•</span>
-                          <span>{formatCurrency(item.purchase_price, currency)}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div>{getStatusBadge(item.status)}</div>
-                </div>
-              ))
-            ) : (
-              <p className="text-xs text-slate-400 py-4 text-center">No assets recorded yet</p>
-            )}
-          </div>
-        </div>
-
-        {/* Recently Updated */}
-        <div className="p-5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Recently Updated Assets</h3>
-            <button
-              onClick={() => onNavigateToAssets({ sort_by: 'updated_at', sort_order: 'DESC' })}
-              className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline"
-            >
-              View all
-            </button>
-          </div>
-
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {recentlyUpdated?.length > 0 ? (
-              recentlyUpdated.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => onSelectAsset(item)}
-                  className="py-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 px-2 rounded-lg cursor-pointer transition-colors"
-                >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-xs font-bold text-blue-600 dark:text-blue-400">
-                        {item.id}
-                      </span>
-                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                        {item.name}
-                      </span>
-                    </div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                      <span>{item.category_name}</span>
-                      {item.assigned_to && (
-                        <>
-                          <span>•</span>
-                          <span>Assigned: {item.assigned_to}</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <div>{getStatusBadge(item.status)}</div>
-                </div>
-              ))
-            ) : (
-              <p className="text-xs text-slate-400 py-4 text-center">No recent updates</p>
             )}
           </div>
         </div>

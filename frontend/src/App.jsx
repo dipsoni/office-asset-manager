@@ -21,6 +21,7 @@ import HandoverSlipModal from './components/HandoverSlipModal';
 import HandoverImportModal from './components/HandoverImportModal';
 import PinLockModal from './components/PinLockModal';
 import ExcelImportModal from './components/ExcelImportModal';
+import UserGuideModal from './components/UserGuideModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import { api } from './api';
 
@@ -79,11 +80,18 @@ export default function App() {
 
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [assetToEdit, setAssetToEdit] = useState(null);
   const [selectedAssetDetail, setSelectedAssetDetail] = useState(null);
   const [assignModalAsset, setAssignModalAsset] = useState(null);
   const [returnModalAsset, setReturnModalAsset] = useState(null);
   const [maintenanceModalAsset, setMaintenanceModalAsset] = useState(null);
+
+  const openAssignModal = (asset = null) => {
+    setAssignModalAsset(asset);
+    setIsAssignModalOpen(true);
+  };
 
   // Handover Modals
   const [isHandoverModalOpen, setIsHandoverModalOpen] = useState(false);
@@ -245,6 +253,9 @@ export default function App() {
             setAssetToEdit(null);
             setIsAddModalOpen(true);
           }}
+          onOpenAssignModal={() => openAssignModal()}
+          onOpenImportModal={() => setIsImportModalOpen(true)}
+          onOpenGuide={() => setIsGuideOpen(true)}
           onSelectAsset={async (a) => {
             try {
               const full = await api.getAsset(a.id);
@@ -288,6 +299,9 @@ export default function App() {
                 setAssetToEdit(null);
                 setIsAddModalOpen(true);
               }}
+              onOpenAssignModal={() => openAssignModal()}
+              onOpenImportModal={() => setIsImportModalOpen(true)}
+              onOpenGuide={() => setIsGuideOpen(true)}
             />
           )}
 
@@ -322,7 +336,7 @@ export default function App() {
                 setIsAddModalOpen(true);
               }}
               onDeleteAsset={handleDeleteAsset}
-              onAssignAsset={(a) => setAssignModalAsset(a)}
+              onAssignAsset={(a) => openAssignModal(a)}
               onReturnAsset={(a) => setReturnModalAsset(a)}
               onMaintenanceAsset={(a) => setMaintenanceModalAsset(a)}
               onExportExcel={() => (window.location.href = api.getExportExcelUrl())}
@@ -335,7 +349,7 @@ export default function App() {
             <AssignmentsView
               assignments={assignments}
               onReturnAsset={(a) => setReturnModalAsset(a)}
-              onOpenAssignModal={() => setAssignModalAsset(assets[0] || null)}
+              onOpenAssignModal={() => openAssignModal()}
               onSelectAsset={async (a) => {
                 const full = await api.getAsset(a.id);
                 setSelectedAssetDetail(full);
@@ -428,7 +442,7 @@ export default function App() {
           setAssetToEdit(a);
           setIsAddModalOpen(true);
         }}
-        onAssign={(a) => setAssignModalAsset(a)}
+        onAssign={(a) => openAssignModal(a)}
         onReturn={(a) => setReturnModalAsset(a)}
         onMaintenance={(a) => setMaintenanceModalAsset(a)}
         onHandover={(a) => {
@@ -455,10 +469,30 @@ export default function App() {
       />
 
       <AssignmentModal
-        isOpen={Boolean(assignModalAsset)}
+        isOpen={isAssignModalOpen}
         asset={assignModalAsset}
-        onClose={() => setAssignModalAsset(null)}
+        availableAssets={assets.filter((a) => a.status === 'Available')}
+        employees={employees}
+        onClose={() => {
+          setIsAssignModalOpen(false);
+          setAssignModalAsset(null);
+        }}
         onSuccess={loadAllData}
+      />
+
+      <UserGuideModal
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        onQuickAction={(action) => {
+          if (action === 'add') {
+            setAssetToEdit(null);
+            setIsAddModalOpen(true);
+          } else if (action === 'assign') {
+            openAssignModal();
+          } else if (action === 'handovers') {
+            setCurrentTab('handovers');
+          }
+        }}
       />
 
       <ReturnModal

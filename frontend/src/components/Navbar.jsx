@@ -7,7 +7,12 @@ import {
   Lock,
   X,
   ExternalLink,
-  Laptop
+  Laptop,
+  HelpCircle,
+  ChevronDown,
+  UserCheck,
+  Upload,
+  ArrowLeftRight
 } from 'lucide-react';
 import { getStatusBadge } from '../utils/formatters';
 
@@ -15,6 +20,9 @@ export default function Navbar({
   searchTerm,
   setSearchTerm,
   onOpenAddModal,
+  onOpenAssignModal,
+  onOpenImportModal,
+  onOpenGuide,
   onSelectAsset,
   currency,
   theme,
@@ -24,13 +32,39 @@ export default function Navbar({
   assets = []
 }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isQuickMenuOpen, setIsQuickMenuOpen] = useState(false);
   const searchRef = useRef(null);
+  const inputRef = useRef(null);
+  const quickMenuRef = useRef(null);
 
-  // Close search popover on outside click
+  // Keyboard shortcut: Press / to focus search
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (
+        e.key === '/' &&
+        document.activeElement.tagName !== 'INPUT' &&
+        document.activeElement.tagName !== 'TEXTAREA' &&
+        document.activeElement.tagName !== 'SELECT'
+      ) {
+        e.preventDefault();
+        if (inputRef.current) {
+          inputRef.current.focus();
+          setIsSearchOpen(true);
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Close search popover & quick menu on outside click
   useEffect(() => {
     function handleClickOutside(e) {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
         setIsSearchOpen(false);
+      }
+      if (quickMenuRef.current && !quickMenuRef.current.contains(e.target)) {
+        setIsQuickMenuOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -63,27 +97,35 @@ export default function Navbar({
         <div className="relative flex items-center">
           <Search className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 pointer-events-none" />
           <input
+            ref={inputRef}
             type="text"
-            placeholder="Global search (Asset ID, Name, Serial #, Tag, Custodian, Category)..."
+            placeholder="Search assets (ID, Name, Serial #, Custodian)... Press / to search"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setIsSearchOpen(true);
             }}
             onFocus={() => setIsSearchOpen(true)}
-            className="w-full pl-10 pr-9 py-2 bg-slate-100 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-lg border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all duration-150"
+            className="w-full pl-10 pr-16 py-2 bg-slate-100 dark:bg-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 rounded-xl border border-transparent focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:outline-none transition-all duration-150"
           />
-          {searchTerm && (
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setIsSearchOpen(false);
-              }}
-              className="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          )}
+          <div className="absolute right-3 flex items-center gap-1.5 pointer-events-none">
+            {searchTerm ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchTerm('');
+                  setIsSearchOpen(false);
+                }}
+                className="pointer-events-auto text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            ) : (
+              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono text-slate-400 dark:text-slate-500 bg-white dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600 rounded">
+                /
+              </kbd>
+            )}
+          </div>
         </div>
 
         {/* Instant Search Results Dropdown */}
@@ -125,7 +167,7 @@ export default function Navbar({
                         {asset.serial_number && <span>SN: {asset.serial_number}</span>}
                         {asset.assigned_to && (
                           <span className="text-slate-700 dark:text-slate-300 font-medium">
-                            • {asset.assigned_to}
+                            • Custodian: {asset.assigned_to}
                           </span>
                         )}
                       </div>
@@ -143,7 +185,17 @@ export default function Navbar({
       </div>
 
       {/* Right Side Actions */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5">
+        {/* Help & Guide Button */}
+        <button
+          onClick={onOpenGuide}
+          className="p-2 text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-xl transition-colors flex items-center gap-1.5 text-xs font-medium"
+          title="Open User Guide & Help"
+        >
+          <HelpCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <span className="hidden md:inline">Help Guide</span>
+        </button>
+
         {/* Currency Pill */}
         <div className="hidden sm:flex items-center px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300">
           Currency: <span className="ml-1 text-blue-600 dark:text-blue-400 font-bold">{currency || '₹'}</span>
@@ -152,7 +204,7 @@ export default function Navbar({
         {/* Theme Toggle */}
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
           title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
         >
           {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -162,21 +214,68 @@ export default function Navbar({
         {settings?.pin_lock_enabled === 'true' && (
           <button
             onClick={onLockApp}
-            className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
             title="Lock workspace"
           >
             <Lock className="w-4 h-4" />
           </button>
         )}
 
-        {/* Quick Add Asset Button */}
-        <button
-          onClick={onOpenAddModal}
-          className="flex items-center gap-2 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold shadow-sm hover:shadow transition-all duration-150 active:scale-95"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Asset</span>
-        </button>
+        {/* Quick Add Asset & Dropdown */}
+        <div className="relative" ref={quickMenuRef}>
+          <div className="flex items-center">
+            <button
+              onClick={onOpenAddModal}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-l-xl text-xs font-semibold shadow-sm hover:shadow transition-all duration-150 active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Asset</span>
+            </button>
+            <button
+              onClick={() => setIsQuickMenuOpen(!isQuickMenuOpen)}
+              className="px-2 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-r-xl border-l border-blue-500 text-xs transition-colors"
+              title="More actions"
+            >
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Quick Menu Dropdown */}
+          {isQuickMenuOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in duration-100 text-xs">
+              <button
+                onClick={() => {
+                  setIsQuickMenuOpen(false);
+                  onOpenAddModal();
+                }}
+                className="w-full px-3.5 py-2 flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-left font-medium"
+              >
+                <Plus className="w-4 h-4 text-blue-600" />
+                <span>Add Single Asset</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsQuickMenuOpen(false);
+                  onOpenAssignModal && onOpenAssignModal();
+                }}
+                className="w-full px-3.5 py-2 flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-left font-medium"
+              >
+                <UserCheck className="w-4 h-4 text-indigo-600" />
+                <span>Assign to Staff</span>
+              </button>
+              <button
+                onClick={() => {
+                  setIsQuickMenuOpen(false);
+                  onOpenImportModal && onOpenImportModal();
+                }}
+                className="w-full px-3.5 py-2 flex items-center gap-2.5 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-left font-medium"
+              >
+                <Upload className="w-4 h-4 text-emerald-600" />
+                <span>Import Excel Sheet</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
